@@ -302,3 +302,11 @@ grouped_flights %>%
   summarise(mean_arr_delay = mean(arr_delay, na.rm = TRUE))
 
 
+# Exercises ---------------------------------------------------------------
+
+
+# Exercises: pdf/01_dplyr_exercises.pdf
+# - Simple operations
+# - Multiple operations on a single dataset
+
+
