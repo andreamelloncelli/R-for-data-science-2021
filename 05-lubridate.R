@@ -44,29 +44,55 @@ summary(covid_raw)
 covid_raw %>% 
   select(time) %>% 
   mutate(datetime_tz = ymd_hms(time, tz = 'CET'),
+         # get the Chicago time for each 'CET' entry
          chicago_time = with_tz(datetime_tz, tz = 'America/Chicago'),
+         # if you calculate the Chicago time from Chicago time it keeps the same value.
          chicago_time2 = with_tz(chicago_time, tz = 'America/Chicago'))
 
+# search for time zone name --------------------------------------------------------------
+
+# you can manually search in here: 
+# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+#
+# Otherwise you can find the time zones with the OlsonNames() function,
+# and you can filter it with 'grep'
+# this line returns the New York time zone
+grep("York", OlsonNames(), value=TRUE)
+grep("Chicago", OlsonNames(), value=TRUE)
+
+covid_raw %>% 
+  select(time) %>% 
+  mutate(
+    # Parse the time string
+    time = ymd_hms(time),
+    # Set the time time-zone as Central Europe Time
+    time = force_tz(time, tz = 'CET'),
+    # Calculate the time in Chicago
+    chicago_time = with_tz(time, tz = 'America/Chicago'),
+    # Calculate the time in New York
+    ny_time = with_tz(time, tz = 'America/New_York')
+  )
+
+
+# Example: China --------------------------------------------------------------
+
+# China has only one time zone: Beijing Time
+# You can see from here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+# that it match with the 'Asia/Shanghai' time zone
 covid_time <- covid_raw %>% 
   select(time) %>% 
   mutate(datetime_tz = ymd_hms(time, tz = 'CET')) %>% 
   select(-time)
 
 covid_time %>% 
-  mutate(china_time = datetime_tz + hours(7)) %>% 
-  mutate(real_china_time = force_tz(china_time, tz = 'America/Chicago'))
-
-
-# time zones --------------------------------------------------------------
-
-
-covid_raw %>% 
-  select(time) %>% 
-  mutate(time = ymd_hms(time, tz = 'CET'),
-         # time = force_tz(time, tz = 'America/Chicago'),
-         chicago_time = with_tz(time, tz = 'America/Chicago'),
-         ny_time = with_tz(time, tz = 'America/New_York'))
-
+  mutate(
+    # manually calculating the Chinese time as 7 hours forward
+    china_time = datetime_tz + hours(7),
+    # manually set the correct time zone
+    real_china_time = force_tz(china_time, tz = 'Asia/Shanghai'),
+    # calculate Chinese time (the previous two steps) with 'with_tz' function.
+    calculated_china_time = with_tz(datetime_tz, tz = 'Asia/Shanghai')
+  )
 
 
 
@@ -81,10 +107,5 @@ result <-
     plus_seven = datetime_tz + hours(7) + days(1) + months(7),
     date_month = floor_date(datetime_tz, unit = 'month')
   ) %>% 
-  group_by(date_month) %>% 
-  summarise(...)
-
-
-
-
+  group_by(date_month) 
 
