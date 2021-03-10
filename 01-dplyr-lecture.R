@@ -289,10 +289,11 @@ flights %>%
 
 tbl <- flights %>% 
   group_by(carrier, origin, dest) %>%
-  summarise(mean_arr_delay = mean(arr_delay, na.rm = TRUE)) %>% 
-  ungroup()
+  summarise(mean_arr_delay = mean(arr_delay, na.rm = TRUE)) 
 
-tbl
+tbl %>% 
+  ungroup() %>% 
+  summarise(mean_arr_delay = mean(mean_arr_delay, na.rm = T))
 
 grouped_flights <- flights %>% 
   group_by(carrier) %>% 
@@ -308,5 +309,12 @@ grouped_flights %>%
 # Exercises: pdf/01_dplyr_exercises.pdf
 # - Simple operations
 # - Multiple operations on a single dataset
+# - Multiple operations on multiple datasets (more difficult, you need joins)
 
 
+
+# footnotes ---------------------------------------------------------------
+
+# This is the way to handle variable names with spaces
+`first appearance` <- 2
+`first appearance`
